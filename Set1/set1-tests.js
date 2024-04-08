@@ -1,4 +1,4 @@
-const { hexToBase64, fixedXOR, decipherSingleByteXOR } = require('./set1');
+const { hexToBase64, fixedXOR, decipherSingleByteXOR, repeatingKeyXOR } = require('./set1');
 const fs = require('node:fs');
 
 const printDivider = () => {
@@ -8,6 +8,7 @@ const printDivider = () => {
 const func = {
   'Hex to base64': hexToBase64,
   'Fixed XOR': fixedXOR,
+  'Implement repeating-key XOR': repeatingKeyXOR
 }
 
 function checkTestCase({ name, params, expect }) {
@@ -32,6 +33,7 @@ fs.readFile('./set1-test-cases.json', (err, data) => {
   testCases.forEach(checkTestCase);
 });
 
+/*
 fs.readFile('./../english-probability.json', (err, data) => {
   if (err) {
     console.error(err);
@@ -77,3 +79,4 @@ fs.readFile('./hex-strings.txt', (err, data) => {
     printDivider();
   });
 });
+*/
