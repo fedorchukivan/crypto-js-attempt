@@ -11,20 +11,20 @@ function compareFrequencies(comparative, comparator) {
   );
 }
 
-function decipherSingleByteXOR(hexString, frequencies) {
-  const buff = Buffer.from(hexString, 'hex');
-  
+const punctuation = [' ', ',', '.', '\n', '!', '?'];
+
+function decipherSingleByteXOR(bytes, frequencies) {
   const results = [];
 
   for (let i = 0; i <= 255; i++) {
-    const characters = Buffer.from(buff.map(uint8 => uint8 ^ i)).toString('utf-8').split('');
-
+    const characters = Buffer.from(bytes.map(uint8 => uint8 ^ i)).toString('utf-8').toLowerCase().split('');
+    
     const summary = characters.reduce((sum, character) => {
-      if (character !== ' ') {
+      if (!punctuation.includes(character)) {
         sum[character] = (
           sum[character] !== undefined ?
-          sum[character] + 1 :
-          1
+            sum[character] + 1 :
+            1
         );
       }
       return sum;

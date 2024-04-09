@@ -1,4 +1,4 @@
-const { hexToBase64, fixedXOR, decipherSingleByteXOR, repeatingKeyXOR } = require('./set1');
+const { hexToBase64, fixedXOR, decipherSingleByteXOR, repeatingKeyXOR, breakRepeatingKeyXOR } = require('./set1');
 const fs = require('node:fs');
 
 const printDivider = () => {
@@ -33,7 +33,7 @@ fs.readFile('./set1-test-cases.json', (err, data) => {
   testCases.forEach(checkTestCase);
 });
 
-/*
+
 fs.readFile('./../english-probability.json', (err, data) => {
   if (err) {
     console.error(err);
@@ -43,7 +43,7 @@ fs.readFile('./../english-probability.json', (err, data) => {
   const frequencies = JSON.parse(data);
 
   const res = decipherSingleByteXOR(
-    '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736',
+    Buffer.from('1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'),
     frequencies
   );
 
@@ -53,7 +53,7 @@ fs.readFile('./../english-probability.json', (err, data) => {
   );
   printDivider();
 });
-
+/*
 fs.readFile('./hex-strings.txt', (err, data) => {
   if (err) {
     console.error(err);
@@ -78,5 +78,21 @@ fs.readFile('./hex-strings.txt', (err, data) => {
     console.log(`Message:\t${res.message}\nScore:\t\t${res.score}\n`);
     printDivider();
   });
-});
-*/
+});*/
+
+fs.readFile('./../english-probability.json', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  const frequencies = JSON.parse(data);
+
+  fs.readFile('./base64-strings.txt', (err, data) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log(breakRepeatingKeyXOR(data, frequencies).slice(0,50))
+  })
+})
