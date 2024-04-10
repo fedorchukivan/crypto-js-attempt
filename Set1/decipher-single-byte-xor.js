@@ -2,16 +2,21 @@ const { Buffer } = require('node:buffer');
 
 function compareFrequencies(comparative, comparator) {
   const total = Object.values(comparative).reduce((sum, val) => sum + val, 0);
-  return (
-    Object.keys(comparative).reduce((score, character) => {
-      const a = comparative[character] / total * 100;
-      const b = comparator[character] ?? 0;
-      return score + Math.abs(b - a);
-    }, 0)
-  );
+  const characters = new Set(Object.keys(comparative).concat(Object.keys(comparator)));
+  let score = 0;
+  characters.forEach((character) => {
+    const a = (
+      comparative[character] !== undefined ?
+      comparative[character] / total * 100 :
+      0
+    );
+    const b = comparator[character] ?? 0;
+    score += Math.abs(b - a);
+  });
+  return score;
 }
 
-const punctuation = [' ', ',', '.', '\n', '!', '?'];
+const punctuation = [' ', ',', '.', '\n', '!', '?', '\''];
 
 function decipherSingleByteXOR(bytes, frequencies) {
   const results = [];
@@ -21,10 +26,15 @@ function decipherSingleByteXOR(bytes, frequencies) {
     
     const summary = characters.reduce((sum, character) => {
       if (!punctuation.includes(character)) {
-        sum[character] = (
-          sum[character] !== undefined ?
-            sum[character] + 1 :
-            1
+        const location = (
+          frequencies[character] !== undefined ?
+          character :
+          'rubbish'
+        );
+        sum[location] = (
+          sum[location] !== undefined ?
+          sum[location] + 1 :
+          1
         );
       }
       return sum;
@@ -36,7 +46,6 @@ function decipherSingleByteXOR(bytes, frequencies) {
       score: compareFrequencies(summary, frequencies)
     });
   }
-
   return results.reduce((min, res) => res.score < min.score ? res : min);
 }
 
