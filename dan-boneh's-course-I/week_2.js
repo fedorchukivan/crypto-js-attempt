@@ -1,5 +1,4 @@
 const { Buffer } = require('node:buffer');
-const crypto = require('node:crypto')
 const CryptoJS = require('crypto-js')
 
 function xor_buffer(buff_a, buff_b) {
