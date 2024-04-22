@@ -11,7 +11,7 @@ function hamming_distance(bytes_A, bytes_B) {
             buff += (xor_res & mask) >> i;
         }
         return res + buff;
-    }, 0)
+    }, 0);
 }
 
 function breakRepeatingKeyXOR(string, frequencies) {
@@ -23,7 +23,7 @@ function breakRepeatingKeyXOR(string, frequencies) {
         if (arr[group_index] !== undefined) {
             arr[group_index].push(byte);
         } else {
-            arr[group_index] = [byte]
+            arr[group_index] = [byte];
         }
         return arr;
     }, []);
@@ -33,7 +33,7 @@ function breakRepeatingKeyXOR(string, frequencies) {
     return {
         key: String.fromCharCode(...key),
         message: Buffer.from(repeatingKeyXOR(input_string, key), 'hex').toString('utf-8')
-    }
+    };
 }
 
 function findKeySize(string) {
@@ -65,4 +65,4 @@ function findKeySize(string) {
 
 module.exports = {
     breakRepeatingKeyXOR
-}
+};

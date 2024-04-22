@@ -6,4 +6,4 @@ function hexToBase64(hexString) {
 
 module.exports = {
   hexToBase64
-}
+};

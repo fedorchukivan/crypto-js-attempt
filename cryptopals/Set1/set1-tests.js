@@ -1,15 +1,23 @@
-const { AES_ECB_decipher, hexToBase64, fixedXOR, decipherSingleByteXOR, repeatingKeyXOR, breakRepeatingKeyXOR } = require('./set1');
+const { hexToBase64,
+  fixedXOR,
+  repeatingKeyXOR,
+  //breakRepeatingKeyXOR,
+  //AES_ECB_decipher,
+  //decipherSingleByteXOR
+} = require('./set1');
+
 const fs = require('node:fs');
+const { Buffer } = require('node:buffer');
 
 const printDivider = () => {
   console.log('---------------------------------------------------\n');
-}
+};
 
 const func = {
   'Hex to base64': hexToBase64,
   'Fixed XOR': fixedXOR,
   'Implement repeating-key XOR': repeatingKeyXOR
-}
+};
 
 function checkTestCase({ name, params, expect }) {
   const result = func[name](...params);
@@ -22,15 +30,15 @@ function checkTestCase({ name, params, expect }) {
   printDivider();
 }
 
-// fs.readFile('./set1-test-cases.json', (err, data) => {
-//   if (err) {
-//     console.error(err);
-//     return;
-//   }
+fs.readFile('./set1-test-cases.json', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
 
-//   const testCases = JSON.parse(data);
-//   testCases.forEach(checkTestCase);
-// });
+  const testCases = JSON.parse(data);
+  testCases.forEach(checkTestCase);
+});
 
 
 // fs.readFile('./../english-probability.json', (err, data) => {
@@ -124,20 +132,20 @@ fs.readFile('./../ecb-cipher-text.txt', (err, data) => {
     for (let i = 0; i < curr.length; i += 16) {
       const chunk = curr.subarray(i, i + 16).toString('hex');
       if (result[chunk] === undefined) {
-        result[chunk] = 0
+        result[chunk] = 0;
       } else {
         result[chunk] += 1;
       }
     }
 
     const score = Object.values(result).reduce((sum, el) => sum + el);
-    if(prev.count < score){
-      return {key: curr.toString('hex'), count: score}
+    if (prev.count < score) {
+      return { key: curr.toString('hex'), count: score };
     }
     return prev;
   }, {
     key: '',
     count: -1,
-  })
-  console.log(`Cipher Text: ${result.key}\nECB key count: ${result.count}`)
-})
+  });
+  console.log(`Cipher Text: ${result.key}\nECB key count: ${result.count}`);
+});

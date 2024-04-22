@@ -41,7 +41,7 @@ function extractKeyFromEncryptedMessagesBySameOTP(encryptedMessages) {
                     statistic[spaceLocation] + 1 :
                     1
                 )
-            )
+            );
             return statistic;
         }, {});
     
@@ -51,9 +51,9 @@ function extractKeyFromEncryptedMessagesBySameOTP(encryptedMessages) {
                 key[loc] = {
                     code: m[loc] ^ ' '.charCodeAt(0),
                     score: spaceCharStatistic[loc]
-                }
+                };
             }
-        })
+        });
     }
 
     return Buffer.from(Array.from(key, item => item?.code || 0)).toString('hex');
@@ -72,7 +72,7 @@ function findLetterIndexes(bytes) {
         if (isEnglishLetter(byte)) {
             res.push(i);
         }
-    })
+    });
     return res;
 }
 

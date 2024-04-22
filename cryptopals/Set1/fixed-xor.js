@@ -8,4 +8,4 @@ function fixedXOR(hexStringA, hexStringB) {
 
 module.exports = {
   fixedXOR
-}
+};

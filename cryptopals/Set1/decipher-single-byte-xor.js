@@ -51,4 +51,4 @@ function decipherSingleByteXOR(bytes, frequencies) {
 
 module.exports = {
   decipherSingleByteXOR
-}
+};
