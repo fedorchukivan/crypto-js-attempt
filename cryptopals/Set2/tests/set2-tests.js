@@ -28,7 +28,7 @@ function checkAES_CBC_Mode(data) {
       .join('')
   );
 
-  const result = AES_CBC_decipher(key, cipherText, { iv: Buffer.alloc(16) })
+  const result = AES_CBC_decipher(key, cipherText, { iv: Buffer.alloc(16) });
   console.log('Deciphering file, encrypted by AES CBC with known key\n');
   console.log(`Key: ${key}\n`);
   console.log('Message:');
