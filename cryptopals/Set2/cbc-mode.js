@@ -19,7 +19,7 @@ function AES_ECB_cipher(keyWA, messageWA) {
  * Return hex string
  */
 function AES_ECB_decipher(keyWA, cipherTextWA) {
-    const curr = CryptoJS.AES.decrypt({ ciphertext:cipherTextWA }, keyWA,
+    const curr = CryptoJS.AES.decrypt({ ciphertext: cipherTextWA }, keyWA,
         {
             mode: CryptoJS.mode.ECB,
             padding: CryptoJS.pad.ZeroPadding
@@ -49,9 +49,10 @@ function AES_CBC_decipher(key, cipherText, options) {
     const keyWA = convert_to_word_array(key, options?.key_encoding)
     const input = Buffer.from(cipherText, options?.input_encoding ?? 'hex');
     const result = [];
-    let prev = input.subarray(0, 16);
+    let prev = options?.iv ?? input.subarray(0, 16);
+    const start_index = options?.iv === undefined ? 16 : 0;
 
-    for (let i = 16; i <= input.length - 16; i += 16) {
+    for (let i = start_index; i <= input.length - 16; i += 16) {
         const chunk = input.subarray(i, i + 16);
         const cipherTextWA = convert_to_word_array(chunk);
         const curr = AES_ECB_decipher(keyWA, cipherTextWA);
@@ -70,10 +71,3 @@ module.exports = {
     AES_CBC_cipher,
     AES_CBC_decipher
 }
-
-const key = 'YELLOW SUBMARINE';
-const iv = Buffer.alloc(16).toString('hex');
-const message = 'like like like like';
-const encoded = AES_CBC_cipher(key, message, iv);
-const decoded = AES_CBC_decipher(key, encoded)
-console.log(decoded === message ? 'passed' : 'failed')
