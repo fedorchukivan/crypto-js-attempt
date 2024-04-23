@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Padding PKCS7",
+        "params": [
+            "YELLOW SUBMARINE",
+            20,
+            {
+                "input_encoding": "utf-8",
+                "output_encoding": "hex"
+            }
+        ],
+        "expect": "59454c4c4f57205355424d4152494e4504040404"
+    }
+]
