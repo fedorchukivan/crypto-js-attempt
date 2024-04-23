@@ -1,8 +1,7 @@
 const { padding_PKCS7 } = require('./set2');
-const { createCheckTestCase } = require('./../check-test-case.js')
+const { createCheckTestCase } = require('./../check-test-case.js');
 
 const fs = require('node:fs');
-const { Buffer } = require('node:buffer');
 
 const func = {
   'Padding PKCS7': padding_PKCS7,
