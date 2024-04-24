@@ -27,9 +27,11 @@ function AES_ECB_decipher(keyWA, cipherTextWA) {
     return curr;
 }
 
-
+/**
+ * Return hex string
+ */
 function AES_CBC_cipher(key, message, iv, options) {
-    const keyWA = convert_to_word_array(key, options?.key_encoding)
+    const keyWA = convert_to_word_array(key, options?.key_encoding);
     const input = padding_PKCS7(message, 16, { input_encoding: options?.input_encoding ?? 'utf-8' });
     let prev = Buffer.from(iv, 'hex');
     const result = [iv];
@@ -45,8 +47,11 @@ function AES_CBC_cipher(key, message, iv, options) {
     return result.join('');
 }
 
+/**
+ * Return utf-8 string
+ */
 function AES_CBC_decipher(key, cipherText, options) {
-    const keyWA = convert_to_word_array(key, options?.key_encoding)
+    const keyWA = convert_to_word_array(key, options?.key_encoding);
     const input = Buffer.from(cipherText, options?.input_encoding ?? 'hex');
     const result = [];
     let prev = options?.iv ?? input.subarray(0, 16);
@@ -70,4 +75,4 @@ module.exports = {
     AES_ECB_decipher,
     AES_CBC_cipher,
     AES_CBC_decipher
-}
+};
