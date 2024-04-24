@@ -51,7 +51,7 @@ function detectionOracle_ECB_CBC(cipherText, encoding = 'hex') {
             );
         }
 
-        score = Math.min(score, Object.values(statistic).reduce((sum, val) => sum + val));
+        score = Math.max(score, Object.values(statistic).reduce((sum, val) => sum + val));
     }
 
     return score > 0 ? 'ECB' : 'CBC';

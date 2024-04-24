@@ -5,6 +5,7 @@ const {
 } = require('../set2');
 const { printDivider, createCheckTestCase } = require('./../../check-test-case');
 const { fsReadFactory } = require('../../fs-read-factory');
+const { encryptionOracle, detectionOracle_ECB_CBC } = require('../ecb-cbc-detection');
 
 const func = {
   'Padding PKCS7': padding_PKCS7,
@@ -36,6 +37,30 @@ function checkAES_CBC_Mode(data) {
   printDivider();
 }
 
+// function checkDetectionOracle_ECB_CBC(data) {
+//   const modeCodes = {
+//     'ECB': 0,
+//     'CBC': 1
+//   };
+//   const iterations = 100;
+//   let successfulDetections = 0;
+//   const message = data.toString('utf-8');
+
+//   for(let i = 0; i < iterations; i++) {
+//     const mode = Math.floor(Math.random() * 2);
+//     const cipherText = encryptionOracle(message, mode);
+//     const detectionResult = detectionOracle_ECB_CBC(cipherText);
+
+//     if (mode === modeCodes[detectionResult]) {
+//       successfulDetections++;
+//     }
+//   }
+
+//   console.log('Detecting if text was encrypted by ECB or CBC\n');
+//   console.log(`Detection rate: ${successfulDetections / iterations}\n`);
+//   printDivider();
+// }
+
 const testsData = [
   {
     func: checkSimpleTestCases,
@@ -44,7 +69,11 @@ const testsData = [
   {
     func: checkAES_CBC_Mode,
     path: './../data/ecb-ciphers.txt'
-  }
+  },
+  // {
+  //   func: checkDetectionOracle_ECB_CBC,
+  //   path: './../data/test-text.txt'
+  // }
 ];
 
 const testRunner = testsData.reduceRight((next, test) => {
