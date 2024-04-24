@@ -14,9 +14,9 @@ function fsReadFactory(path, callback, next) {
         next();
       }
     });
-  }
+  };
 }
 
 module.exports = {
   fsReadFactory
-}
+};

@@ -15,10 +15,10 @@ function createCheckTestCase(functions) {
             }\n`);
 
         printDivider();
-    }
+    };
 }
 
 module.exports = {
     printDivider,
     createCheckTestCase
-}
+};

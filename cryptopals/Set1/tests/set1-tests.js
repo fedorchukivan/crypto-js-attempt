@@ -95,7 +95,7 @@ function check_AES_ECB_deciphering(data) {
     .join('')
   );
 
-  const result = AES_ECB_decipher(key, cipherText)
+  const result = AES_ECB_decipher(key, cipherText);
   console.log('Deciphering file, encrypted by AES ECB with known key\n');
   console.log(`Key: ${key}\n`);
   console.log('Message:');
