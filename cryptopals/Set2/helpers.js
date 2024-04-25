@@ -9,10 +9,14 @@ function xor_buffer(buff_a, buff_b) {
 }
 
 function convert_to_word_array(message, encoding = 'utf-8') {
+    let message_hex = '';
     if (Buffer.isBuffer(message)) {
-        return CryptoJS.enc.Hex.parse(message.toString('hex'));
+        message_hex = message.toString('hex');
+    } else if(Buffer.isEncoding(encoding)){
+        message_hex = Buffer.from(message, encoding).toString('hex');
+    } else {
+        message_hex = Buffer.from(message).toString('hex');
     }
-    const message_hex = Buffer.from(message, encoding).toString('hex');
     return CryptoJS.enc.Hex.parse(message_hex);
 }
 
