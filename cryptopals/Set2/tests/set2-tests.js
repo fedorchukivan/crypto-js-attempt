@@ -1,11 +1,12 @@
 const { Buffer } = require('node:buffer');
 const {
   AES_CBC_decipher,
-  padding_PKCS7
+  padding_PKCS7,
+  encryptionOracleFactoryECB,
+  decryptUnknownEncryptionOracleAppendage
 } = require('../set2');
 const { printDivider, createCheckTestCase } = require('./../../check-test-case');
 const { fsReadFactory } = require('../../fs-read-factory');
-const { encryptionOracle, detectionOracle_ECB_CBC } = require('../ecb-cbc-detection');
 
 const func = {
   'Padding PKCS7': padding_PKCS7,
@@ -34,6 +35,18 @@ function checkAES_CBC_Mode(data) {
   console.log(`Key: ${key}\n`);
   console.log('Message:');
   console.log(result);
+  printDivider();
+}
+
+function checkSimpleDecryptionECB(data) {
+  const secretStringEncodedBase64 = data.toString();
+  const encryptionOracleECB = encryptionOracleFactoryECB(secretStringEncodedBase64);
+  
+  const secretMessage = decryptUnknownEncryptionOracleAppendage(encryptionOracleECB);
+  const secretString = Buffer.from(secretStringEncodedBase64, 'base64').toString();
+  console.log('Decrypting secret message appended to ECB encryption oracle (simple byte at a time)\n');
+  console.log(`Secret message: ${secretMessage}\n`);
+  console.log(`Decrypted message is${secretMessage === secretString ? '' : ' NOT'} equal to original string.\n`);
   printDivider();
 }
 
@@ -73,7 +86,11 @@ const testsData = [
   // {
   //   func: checkDetectionOracle_ECB_CBC,
   //   path: './../data/test-text.txt'
-  // }
+  // },
+  {
+    func: checkSimpleDecryptionECB,
+    path: './../data/secret-string.txt'
+  }
 ];
 
 const testRunner = testsData.reduceRight((next, test) => {

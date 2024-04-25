@@ -65,20 +65,28 @@ function decryptUnknownEncryptionOracleAppendage(encryptionOracle) {
         for(let i = 0; i < keySize && !messageDecrypted; i++) {
             const cipher = encryptionOracle(padding).slice(indexOfBlockStart, indexOfBlockEnd);
             const knownMessage = padding + secretMessage;
-            const knownBlockMessage = (knownMessage).slice(knownMessage.length - keySize + 1);
+            const knownBlockMessage = knownMessage.slice(indexOfBlockStart / 2);
 
-            for(let charCode = 0; charCode <= 255; charCode++) {
+            let done = false;
+            for(let charCode = 0; charCode <= 255 && !done; charCode++) {
                 const char = String.fromCharCode(charCode);
-                const testCipher = encryptionOracle(knownBlockMessage + char).slice(0, keySize*2);
+                const input = knownBlockMessage + char;
+                const testCipher = encryptionOracle(input).slice(0, keySize*2);
+                // console.log(input, '(', input.length, '): cipher:', testCipher, 'goal:', cipher);
 
                 if(testCipher === cipher) {
-                    if (charCode === 1) {
+                    if (charCode === 0) {
                         messageDecrypted = true;
                     } else {
                         secretMessage += char;
                     }
-                    break;
+                    done = true;
                 }
+            }
+
+            if(!done) {
+                console.log('Unknown ', i+1, ' char of block ', blockNumber+1);
+                return secretMessage;
             }
 
             padding = padding.slice(0, padding.length - 1);
