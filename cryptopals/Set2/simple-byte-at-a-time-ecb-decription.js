@@ -40,6 +40,12 @@ function findKeySizeForEncryptionOracle(encryptionOracle) {
     return keySize - 1;
 }
 
+function isEncryptionOracleUsingECB(encryptionOracle, keySize = 16) {
+    const blockSizeMessage = Buffer.alloc(keySize*2, 'a').toString();
+    const cipherText = encryptionOracle(blockSizeMessage);
+    return cipherText.slice(0, keySize*2) === cipherText.slice(keySize*2, keySize*4);
+}
+
 module.exports = {
     encryptionOracleFactoryECB
 };
