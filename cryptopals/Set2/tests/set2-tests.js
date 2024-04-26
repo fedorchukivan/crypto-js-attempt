@@ -4,6 +4,9 @@ const {
   padding_PKCS7,
   encryptionOracleFactoryECB,
   decryptUnknownEncryptionOracleAppendage,
+  registration_Factory,
+  attacker,
+  emailGenerator,
   encryptionOracleWithPrefixFactoryECB,
   decryptSecretFromEncryptionOracleWithPrefix
 } = require('../set2');
@@ -49,6 +52,18 @@ function checkSimpleDecryptionECB(data) {
   console.log('Decrypting secret message appended to ECB encryption oracle (simple byte at a time)\n');
   console.log(`Secret message: ${secretMessage}\n`);
   console.log(`Decrypted message is${secretMessage === secretString ? '' : ' NOT'} equal to original string.\n`);
+  printDivider();
+}
+
+function checkECBCutAndPaste() {
+  const { login, getUser } = registration_Factory();
+  const getEmail = emailGenerator();
+  const cipher = attacker(login, getEmail, 32);
+  const user = getUser(cipher);
+
+  console.log('ECB cut and paste. Attacking profile data (change role from "user" to "admin")\n');
+  console.log(`User info: email -> ${user.email}\n`);
+  console.log(`User role is admin: ${user.role === 'admin'}.\n`);
   printDivider();
 }
 
@@ -111,9 +126,14 @@ const testsData = [
   }
 ];
 
+const testDataWithoutInputFile = [
+  checkECBCutAndPaste
+];
+
 const testRunner = testsData.reduceRight((next, test) => {
   return fsReadFactory(test.path, test.func, next);
 }, undefined);
 
 printDivider();
+testDataWithoutInputFile.forEach((fun) => fun());
 testRunner();
