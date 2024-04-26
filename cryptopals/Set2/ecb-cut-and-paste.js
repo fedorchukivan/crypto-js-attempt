@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const { Buffer } = require('node:buffer');
 const { AES_ECB_cipher, AES_ECB_decipher } = require('./cbc-mode');
 const { convert_to_word_array } = require('./helpers');
+const { padding_PKCS7 } = require('./padding-pkcs7');
 
 function parsing_routine(message) {
   const pairs = message.split('&');
@@ -54,20 +55,43 @@ function registration_Factory() {
   };
 }
 
+function emailPostfixGenerator() {
+  const postfixes = ['@gmail.com', '@net.com'];
+  return function () {
+    return postfixes[crypto.randomInt(0, postfixes.length)];
+  };
+}
+
+function emailGenerator() {
+  const getPostfix = emailPostfixGenerator();
+  return function () {
+    const postfix = getPostfix();
+    const name_length = crypto.randomInt(3, 7);
+    const name = Buffer.alloc(name_length, 'a').toString('utf-8');
+    return name + postfix;
+  };
+}
+
 function attacker(login, block_size = 16) {
   const email_part = 'email=';
+  const email = emailGenerator()();
   const info_part = '&uid=10&role=';
-  let email_end = Buffer.alloc(block_size - email_part.length, 'a').toString('utf-8');
-  const admin_block = 'admin' + Buffer.alloc(block_size - 'admin'.length, 0).toString('utf-8');
 
-  let cipher = login(email_end + admin_block);
-  const admin_cipher_block = cipher.slice(block_size * 2, block_size * 4);
+  let chuck = block_size - email_part.length;
+  const email_start = email.slice(0, chuck);
+  const email_end = email.slice(chuck, email.length);
 
-  const count = (email_part + info_part).length % block_size;
-  email_end = Buffer.alloc(block_size - count, 'a').toString('utf-8');
-  cipher = login(email_end);
+  const email_block = padding_PKCS7(email_end, block_size).toString('utf-8');
+  const admin_block = padding_PKCS7('admin', block_size).toString('utf-8');
+  let cipher = login(email_start + email_block + admin_block);
 
-  return cipher.slice(0, (email_part + email_end + info_part).length * 2) + admin_cipher_block;
+  let block_offset = (email_part + email_start + email_block).length / block_size;
+  const admin_cipher_block = cipher.slice(block_size * (2 + block_offset), block_size * (4 + block_offset));
+
+  const count = (email_end + info_part).length % block_size;
+  const padding = Buffer.alloc(block_size - count, 'a').toString('utf-8');
+  cipher = login(email_start + email_end + padding);
+  return cipher.slice(0, (email_part + email_start + email_end + padding + info_part).length * 2) + admin_cipher_block;
 }
 
 const { login, getUser } = registration_Factory();
@@ -78,5 +102,3 @@ console.log(getUser(cipher));
 
 //todo
 //detect block size
-//create real email
-// ecb change zero padding to pkcs7
