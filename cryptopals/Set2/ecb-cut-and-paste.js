@@ -41,7 +41,7 @@ function encryption_decryption_ECB_factory(keySize = 16) {
 
 function registration_Factory() {
   const getProfile = profile_for();
-  const { encrypt, decrypt } = encryption_decryption_ECB_factory();
+  const { encrypt, decrypt } = encryption_decryption_ECB_factory(32);
   return {
     login: function (email) {
       const profile = getProfile(email);
@@ -62,43 +62,46 @@ function emailPostfixGenerator() {
   };
 }
 
+const random_letter = () => String.fromCharCode(crypto.randomInt(97, 122));
+const random_number = () => String.fromCharCode(crypto.randomInt(48, 57));
+
+function emailNameGenerator(length, result = '') {
+  if (length <= 0) {
+    return result;
+  }
+  return emailNameGenerator(length - 1, result + (Math.random() > 0.7 ? random_number() : random_letter()));
+}
+
 function emailGenerator() {
   const getPostfix = emailPostfixGenerator();
-  return function () {
+  return function (length, block_size) {
     const postfix = getPostfix();
-    const name_length = crypto.randomInt(3, 7);
-    const name = Buffer.alloc(name_length, 'a').toString('utf-8');
+    const value = length - postfix.length;
+    const name = emailNameGenerator(value > 1 ? value : value + block_size);
     return name + postfix;
   };
 }
 
-function attacker(login, block_size = 16) {
+function attacker(login, getEmail, block_size = 16) {
   const email_part = 'email=';
-  const email = emailGenerator()();
   const info_part = '&uid=10&role=';
-
-  let chuck = block_size - email_part.length;
-  const email_start = email.slice(0, chuck);
-  const email_end = email.slice(chuck, email.length);
-
-  const email_block = padding_PKCS7(email_end, block_size).toString('utf-8');
   const admin_block = padding_PKCS7('admin', block_size).toString('utf-8');
-  let cipher = login(email_start + email_block + admin_block);
 
-  let block_offset = (email_part + email_start + email_block).length / block_size;
-  const admin_cipher_block = cipher.slice(block_size * (2 + block_offset), block_size * (4 + block_offset));
+  let count = (email_part + info_part).length % block_size;
+  const email = getEmail(block_size - count, block_size);
 
-  const count = (email_end + info_part).length % block_size;
-  const padding = Buffer.alloc(block_size - count, 'a').toString('utf-8');
-  cipher = login(email_start + email_end + padding);
-  return cipher.slice(0, (email_part + email_start + email_end + padding + info_part).length * 2) + admin_cipher_block;
+  let cipher = login(email);
+  const result = cipher.slice(0, (email_part + email + info_part).length * 2);
+
+  const padding = Buffer.alloc(block_size - email_part.length, 'a').toString('utf-8');
+  cipher = login(padding + admin_block);
+  const admin_block_cipher = cipher.slice((email_part + padding).length * 2, (email_part + padding).length * 2 + block_size * 2);
+
+  return result + admin_block_cipher;
 }
 
-const { login, getUser } = registration_Factory();
-let cipher = login('me');
-console.log(getUser(cipher));
-cipher = attacker(login);
-console.log(getUser(cipher));
-
-//todo
-//detect block size
+module.exports = {
+  registration_Factory,
+  attacker,
+  emailGenerator
+};

@@ -3,7 +3,10 @@ const {
   AES_CBC_decipher,
   padding_PKCS7,
   encryptionOracleFactoryECB,
-  decryptUnknownEncryptionOracleAppendage
+  decryptUnknownEncryptionOracleAppendage,
+  registration_Factory,
+  attacker,
+  emailGenerator
 } = require('../set2');
 const { printDivider, createCheckTestCase } = require('./../../check-test-case');
 const { fsReadFactory } = require('../../fs-read-factory');
@@ -50,6 +53,17 @@ function checkSimpleDecryptionECB(data) {
   printDivider();
 }
 
+function checkECBCutAndPaste() {
+  const { login, getUser } = registration_Factory();
+  const getEmail = emailGenerator();
+  const cipher = attacker(login, getEmail, 32);
+  const user = getUser(cipher);
+
+  console.log('ECB cut and paste. Attacking profile data (change role from "user" to "admin")\n');
+  console.log(`User info: email -> ${user.email}\n`);
+  console.log(`User role is admin: ${user.role === 'admin'}.\n`);
+  printDivider();
+}
 // function checkDetectionOracle_ECB_CBC(data) {
 //   const modeCodes = {
 //     'ECB': 0,
@@ -93,9 +107,14 @@ const testsData = [
   }
 ];
 
+const testDataWithoutInputFile = [
+  checkECBCutAndPaste
+];
+
 const testRunner = testsData.reduceRight((next, test) => {
   return fsReadFactory(test.path, test.func, next);
 }, undefined);
 
 printDivider();
+testDataWithoutInputFile.forEach((fun) => fun());
 testRunner();
