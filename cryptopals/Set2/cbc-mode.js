@@ -10,7 +10,7 @@ function AES_ECB_cipher(keyWA, messageWA) {
     const encrypted = CryptoJS.AES.encrypt(messageWA, keyWA,
         {
             mode: CryptoJS.mode.ECB,
-            padding: CryptoJS.pad.ZeroPadding
+            padding: CryptoJS.pad.Pkcs7
         });
     return encrypted.ciphertext.toString();
 }
@@ -22,7 +22,7 @@ function AES_ECB_decipher(keyWA, cipherTextWA) {
     const curr = CryptoJS.AES.decrypt({ ciphertext: cipherTextWA }, keyWA,
         {
             mode: CryptoJS.mode.ECB,
-            padding: CryptoJS.pad.ZeroPadding
+            padding: CryptoJS.pad.Pkcs7
         }).toString();
     return curr;
 }
