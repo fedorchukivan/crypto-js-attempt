@@ -100,6 +100,5 @@ function decryptUnknownEncryptionOracleAppendage(encryptionOracle) {
 
 module.exports = {
     encryptionOracleFactoryECB,
-    isEncryptionOracleUsingECB,
     decryptUnknownEncryptionOracleAppendage
 };

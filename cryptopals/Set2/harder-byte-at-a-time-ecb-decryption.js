@@ -2,7 +2,7 @@ const crypto = require('node:crypto');
 const { Buffer } = require('node:buffer');
 const { convert_to_word_array } = require('./helpers');
 const { AES_ECB_cipher } = require('./cbc-mode');
-const { isEncryptionOracleUsingECB } = require('./simple-byte-at-a-time-ecb-decryption');
+const { decryptUnknownEncryptionOracleAppendage } = require('./set2');
 
 function encryptionOracleWithPrefixFactoryECB(secret, keySize = 16) {
     const prefixLength = crypto.randomInt(keySize/2, keySize*3/2);
@@ -91,12 +91,17 @@ function isolatePrefixFromEncryptionOracle(encryptionOracleWithPrefix, keySize) 
     return encryptionOracle;
 }
 
-function isEncryptionOracleWithPrefixUsingECB(encryptionOracleWithPrefix, keySize) {
-    const encryptionOracle = isolatePrefixFromEncryptionOracle(encryptionOracleWithPrefix, keySize);    
+function decryptSecretFromEncryptionOracleWithPrefix(encryptionOracleWithPrefix) {
+    const keySize = findKeySizeForEncryptionOracleWithPrefix(encryptionOracleWithPrefix);
 
-    return isEncryptionOracleUsingECB(encryptionOracle);
+    const encryptionOracle = isolatePrefixFromEncryptionOracle(encryptionOracleWithPrefix, keySize);
+    return decryptUnknownEncryptionOracleAppendage(encryptionOracle);
 }
 
+const eO = encryptionOracleWithPrefixFactoryECB('&uid=526&role=user');
+console.log(decryptSecretFromEncryptionOracleWithPrefix(eO));
+
 module.exports = {
-    encryptionOracleWithPrefixFactoryECB
+    encryptionOracleWithPrefixFactoryECB,
+    decryptSecretFromEncryptionOracleWithPrefix
 };
