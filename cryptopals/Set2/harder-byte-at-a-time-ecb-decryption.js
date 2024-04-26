@@ -2,6 +2,7 @@ const crypto = require('node:crypto');
 const { Buffer } = require('node:buffer');
 const { convert_to_word_array } = require('./helpers');
 const { AES_ECB_cipher } = require('./cbc-mode');
+const { isEncryptionOracleUsingECB } = require('./simple-byte-at-a-time-ecb-decryption');
 
 function encryptionOracleWithPrefixFactoryECB(secret, keySize = 16) {
     const prefixLength = crypto.randomInt(keySize/2, keySize*3/2);
@@ -48,6 +49,52 @@ function findKeySizeForEncryptionOracleWithPrefix(encryptionOracleWithPrefix) {
     let keySize = indexOfBlockEnd - indexOfBlockStart + 1;
 
     return keySize;
+}
+
+function isolatePrefixFromEncryptionOracle(encryptionOracleWithPrefix, keySize) {
+    const char = 'a';
+    let input = char;
+    let prevCipher = encryptionOracleWithPrefix(input);
+    input += char;
+    let currCipher = encryptionOracleWithPrefix(input);
+
+    const getStableBytes = function(prev, curr) {
+        let stableBytes = 0;
+        for(let i = 0; i < prevCipher.length; i += 2) {
+            if (prev.slice(i, i+1) === curr.slice(i, i+1)) {
+                stableBytes++;
+            } else {
+                break;
+            }
+        }
+        return stableBytes;
+    };
+    let initialStableBytes = getStableBytes(prevCipher, currCipher);
+    initialStableBytes -= initialStableBytes % keySize;
+
+    let stableBytes = initialStableBytes;
+    while(stableBytes - initialStableBytes < keySize) {
+        prevCipher = currCipher;
+        input += char;
+        currCipher = encryptionOracleWithPrefix(input);
+        stableBytes = getStableBytes(prevCipher, currCipher);
+        stableBytes -= stableBytes % keySize;
+    }
+
+    input = input.slice(0, input.length - 1);
+
+    const encryptionOracle = function(message) {
+        const fullResult = encryptionOracleWithPrefix(input + message);
+        return fullResult.slice(stableBytes * 2);
+    };
+    
+    return encryptionOracle;
+}
+
+function isEncryptionOracleWithPrefixUsingECB(encryptionOracleWithPrefix, keySize) {
+    const encryptionOracle = isolatePrefixFromEncryptionOracle(encryptionOracleWithPrefix, keySize);    
+
+    return isEncryptionOracleUsingECB(encryptionOracle);
 }
 
 module.exports = {
