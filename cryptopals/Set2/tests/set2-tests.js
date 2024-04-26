@@ -3,7 +3,9 @@ const {
   AES_CBC_decipher,
   padding_PKCS7,
   encryptionOracleFactoryECB,
-  decryptUnknownEncryptionOracleAppendage
+  decryptUnknownEncryptionOracleAppendage,
+  encryptionOracleWithPrefixFactoryECB,
+  decryptSecretFromEncryptionOracleWithPrefix
 } = require('../set2');
 const { printDivider, createCheckTestCase } = require('./../../check-test-case');
 const { fsReadFactory } = require('../../fs-read-factory');
@@ -50,6 +52,18 @@ function checkSimpleDecryptionECB(data) {
   printDivider();
 }
 
+function checkHarderDecryptionECB(data) {
+  const secretStringEncodedBase64 = data.toString();
+  const secretString = Buffer.from(secretStringEncodedBase64, 'base64').toString();
+  const encryptionOracleWithPrefixECB = encryptionOracleWithPrefixFactoryECB(secretString);
+  
+  const secretMessage = decryptSecretFromEncryptionOracleWithPrefix(encryptionOracleWithPrefixECB);
+  console.log('Decrypting secret message appended to ECB encryption oracle with prefix\n');
+  console.log(`Secret message: ${secretMessage}\n`);
+  console.log(`Decrypted message is${secretMessage === secretString ? '' : ' NOT'} equal to original string.\n`);
+  printDivider();
+}
+
 // function checkDetectionOracle_ECB_CBC(data) {
 //   const modeCodes = {
 //     'ECB': 0,
@@ -89,6 +103,10 @@ const testsData = [
   // },
   {
     func: checkSimpleDecryptionECB,
+    path: './../data/secret-string.txt'
+  },
+  {
+    func: checkHarderDecryptionECB,
     path: './../data/secret-string.txt'
   }
 ];

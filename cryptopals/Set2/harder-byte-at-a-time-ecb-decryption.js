@@ -2,7 +2,7 @@ const crypto = require('node:crypto');
 const { Buffer } = require('node:buffer');
 const { convert_to_word_array } = require('./helpers');
 const { AES_ECB_cipher } = require('./cbc-mode');
-const { decryptUnknownEncryptionOracleAppendage } = require('./set2');
+const { decryptUnknownEncryptionOracleAppendage } = require('./simple-byte-at-a-time-ecb-decryption');
 
 function encryptionOracleWithPrefixFactoryECB(secret, keySize = 16) {
     const prefixLength = crypto.randomInt(keySize/2, keySize*3/2);
