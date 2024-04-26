@@ -26,6 +26,30 @@ function encryptionOracleWithPrefixFactoryECB(secret, keySize = 16) {
     };
 }
 
+function findKeySizeForEncryptionOracleWithPrefix(encryptionOracleWithPrefix) {
+    const cipherA = encryptionOracleWithPrefix('A');
+    const cipherB = encryptionOracleWithPrefix('B');
+    const cipherC = encryptionOracleWithPrefix('C');
+    let indexOfBlockStart = -1;
+    let indexOfBlockEnd = -1;
+    for(let i = 0; i < cipherA.length; i += 2) {
+        if (
+            cipherA.slice(i, i+1) !== cipherB.slice(i, i+1) ||
+            cipherA.slice(i, i+1) !== cipherC.slice(i, i+1)
+        ) {
+            if (indexOfBlockStart === -1) {
+                indexOfBlockStart = i / 2;
+            } else {
+                indexOfBlockEnd = i / 2;
+            }
+        }
+    }
+
+    let keySize = indexOfBlockEnd - indexOfBlockStart + 1;
+
+    return keySize;
+}
+
 module.exports = {
     encryptionOracleWithPrefixFactoryECB
 };
